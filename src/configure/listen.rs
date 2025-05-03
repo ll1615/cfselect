@@ -1,13 +1,13 @@
 use serde::Deserialize;
 use std::net::{AddrParseError, SocketAddr};
 
-#[derive(Debug, Default, Deserialize)]
-pub struct ServerConfig {
+#[derive(Debug, Deserialize, Clone)]
+pub struct ListenConfig {
     pub host: String,
     pub port: u32,
 }
 
-impl ServerConfig {
+impl ListenConfig {
     // 获取地址
     pub fn get_addr(&self) -> String {
         format!("{}:{}", self.host, self.port)
@@ -28,7 +28,7 @@ pub mod tests {
     use super::*;
     #[test]
     pub fn app_config_http_addr_test() {
-        let config = ServerConfig {
+        let config = ListenConfig {
             host: "127.0.0.1".to_string(),
             port: 8080,
         };
@@ -36,7 +36,7 @@ pub mod tests {
     }
     #[test]
     pub fn app_config_socket_addr_test() {
-        let config = ServerConfig {
+        let config = ListenConfig {
             host: "127.0.0.1".to_string(),
             port: 8080,
         };

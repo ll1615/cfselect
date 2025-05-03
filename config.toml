@@ -1,5 +1,7 @@
-num = 222
-
-[server]
+[listen]
 host = "127.0.0.1"
 port = "8989"
+
+[log]
+level = "trace" # 可选:  trace, debug, info, warn, error
+file = { enabled = false, dir = "logs", name_prefix = "app.log" }
