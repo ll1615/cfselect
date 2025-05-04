@@ -9,8 +9,6 @@ pub struct AppState {
 impl AppState {
     pub async fn new(config: AppConfig) -> anyhow::Result<Self> {
         let config = Arc::new(config);
-        Ok(Self {
-            config,
-        })
+        Ok(Self { config })
     }
 }
