@@ -1,9 +1,11 @@
-use std::fmt;
+#![allow(unused)]
+
 use axum::body::Body;
-use axum::http::{header, HeaderValue, Response, StatusCode};
+use axum::http::{HeaderValue, Response, StatusCode, header};
 use axum::response::IntoResponse;
 use serde::Serialize;
 use serde_repr::*;
+use std::fmt::{Debug, Display};
 use tracing::{debug, error};
 
 #[derive(Debug, Default, Serialize)]
@@ -42,7 +44,7 @@ where
     }
 }
 
-impl<E: std::error::Error> From<E> for Resp<()> {
+impl<E: Display + Debug> From<E> for Resp<()> {
     fn from(err: E) -> Self {
         Resp {
             code: Code::InternalError,

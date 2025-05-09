@@ -1,4 +1,5 @@
 mod api;
+mod client;
 mod configure;
 mod model;
 mod router;

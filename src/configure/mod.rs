@@ -1,21 +1,23 @@
 use crate::configure::listen::ListenConfig;
 use crate::configure::log::LogConfig;
+
 use anyhow::Context;
 use config::Environment;
+use namesilo::NamesiloConfig;
 use serde::Deserialize;
 use std::io;
 use tracing::*;
 use tracing_appender::non_blocking::WorkerGuard;
 
-
 pub mod listen;
 pub mod log;
-
+pub mod namesilo;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct AppConfig {
     pub listen: ListenConfig,
     pub log: LogConfig,
+    pub namesilo: NamesiloConfig,
 }
 
 impl AppConfig {
@@ -39,15 +41,9 @@ impl AppConfig {
             .with_level(true)
             .with_target(true);
 
-        // let make_writer: Box<dyn Write + Send + 'static> = if self.log.file.enabled {
-        //     Box::new(tracing_appender::rolling::daily(&self.log.file.dir, &self.log.file.name_prefix))
-        // } else {
-        //     Box::new(io::stdout())
-        // };
-        // let (non_blocking, _guard) = tracing_appender::non_blocking(writer);
-
         let (make_writer, _guard) = if self.log.file.enabled {
-            let file_appender = tracing_appender::rolling::daily(&self.log.file.dir, &self.log.file.name_prefix);
+            let file_appender =
+                tracing_appender::rolling::daily(&self.log.file.dir, &self.log.file.name_prefix);
             tracing_appender::non_blocking(file_appender)
         } else {
             tracing_appender::non_blocking(io::stdout())
@@ -59,11 +55,10 @@ impl AppConfig {
             .with_max_level(level)
             // .with_writer(io::stdout) // 写入标准输出
             .with_writer(make_writer) // 写入文件，将覆盖上面的标准输出
-            .with_ansi(!self.log.file.enabled)  // 如果日志是写入文件，应将ansi的颜色输出功能关掉
+            .with_ansi(!self.log.file.enabled) // 如果日志是写入文件，应将ansi的颜色输出功能关掉
             .event_format(format)
-            .init();  // 初始化并将SubScriber设置为全局SubScriber
+            .init(); // 初始化并将SubScriber设置为全局SubScriber
 
         Ok(_guard)
     }
 }
-

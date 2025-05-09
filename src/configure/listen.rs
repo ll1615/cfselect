@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use serde::Deserialize;
 use std::net::{AddrParseError, SocketAddr};
 
@@ -22,7 +24,6 @@ impl ListenConfig {
     }
 }
 
-
 #[cfg(test)]
 pub mod tests {
     use super::*;
@@ -40,6 +41,9 @@ pub mod tests {
             host: "127.0.0.1".to_string(),
             port: 8080,
         };
-        assert_eq!(config.get_socket_addr().unwrap().to_string(), "127.0.0.1:8080");
+        assert_eq!(
+            config.get_socket_addr().unwrap().to_string(),
+            "127.0.0.1:8080"
+        );
     }
 }

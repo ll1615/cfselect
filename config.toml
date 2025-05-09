@@ -1,7 +1,14 @@
 [listen]
 host = "127.0.0.1"
-port = "8989"
+port = 8989
 
 [log]
-level = "trace" # 可选:  trace, debug, info, warn, error
+level = "trace"                                                   # 可选:  trace, debug, info, warn, error
 file = { enabled = false, dir = "logs", name_prefix = "app.log" }
+
+[namesilo]
+url = "https://www.namesilo.com/api"      # Namesilo API 地址
+key = ""                                  # API Key（从环境变量传入）
+domain = "1554486.xyz"                    # 域名
+rrhost = "t"                              # 要使用的主机名（无需包含“.DOMAIN”）
+rrttl = 7207                              # 此记录的 TTL（如未提供，默认为 7207）
