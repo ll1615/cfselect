@@ -6,7 +6,7 @@ use std::net::{AddrParseError, SocketAddr};
 #[derive(Debug, Deserialize, Clone)]
 pub struct ListenConfig {
     pub host: String,
-    pub port: u32,
+    pub port: u16,
 }
 
 impl ListenConfig {
