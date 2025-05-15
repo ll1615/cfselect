@@ -4,3 +4,4 @@ logs
 .vscode
 ip.txt
 result.csv
+*.env

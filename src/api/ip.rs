@@ -2,13 +2,12 @@ use crate::model::response;
 use crate::model::response::Resp;
 use crate::model::select::Status;
 use axum::Json;
-use std::sync::{Arc, LazyLock, RwLock};
+use std::sync::{LazyLock, RwLock};
 use tokio::fs;
 use tokio::process::Command;
 use tracing::*;
 
-pub static STATUS: LazyLock<Arc<RwLock<Status>>> =
-    LazyLock::new(|| Arc::new(RwLock::new(Status::Pending)));
+pub static STATUS: LazyLock<RwLock<Status>> = LazyLock::new(|| RwLock::new(Status::Pending));
 
 pub async fn select(
     Json(req): Json<Vec<String>>,
@@ -54,6 +53,9 @@ async fn _select(ip_ranges: Vec<String>) -> anyhow::Result<()> {
 
 pub async fn status() -> anyhow::Result<Resp<Status>, Resp<()>> {
     let status = STATUS.read()?.clone();
+    if let Status::Failed(err) = status {
+        return Err(err.into());
+    }
 
     Ok(response::success_data(status))
 }

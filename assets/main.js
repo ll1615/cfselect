@@ -49,17 +49,14 @@ document.addEventListener("DOMContentLoaded", () => {
             $alert_msg.classList.add("visible", "alert-success");
             $alert_msg_span.innerText = "请求成功！！";
 
-            setTimeout(() => {
-                $alert_msg.classList.remove("visible", "alert-success");
-                $alert_msg.classList.add("invisible");
-            }, 3000);
-
+            hide_message(3000);
             return;
         }
 
         $alert_msg.classList.remove("invisible", "alert-success");
         $alert_msg.classList.add("visible", "alert-error");
         $alert_msg_span.innerText = obj?.message || "Unknown error";
+        hide_message(3000);
     }
 
     // 加载状态
@@ -71,7 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const req = $ip_ranges.value.trim().split("\n");
-        console.log(JSON.stringify(req));
         let response = await fetch("/api/ip/select", {
             method: "POST",
             body: JSON.stringify(req),
@@ -98,8 +94,14 @@ document.addEventListener("DOMContentLoaded", () => {
         for (let i = 0; i < 1000; i++) {
             let response = await fetch("/api/ip/select/status");
             let obj = await response.json();
-            console.log(`checking status: ${obj?.data}`);
-            if (obj?.code == 0 && (obj?.data == "Success" || obj?.data == "Pending")) {
+            if (!obj || obj.code != 0) {
+                display_message(obj);
+                $loading_status.classList.replace("visible", "invisible");
+                checking_status = false;
+                return;
+            }
+
+            if (obj?.data == "Success" || obj?.data == "Pending") {
                 fill_selected_ips();
 
                 $loading_status.classList.replace("visible", "invisible");
@@ -154,5 +156,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
         return secs.every(e => !(isNaN(e) || e < 0 || e > 255));
+    }
+
+    const hide_message = function(delay) {
+        setTimeout(() => {
+            $alert_msg.classList.replace("visible", "invisible");
+        }, delay);
     }
 });
