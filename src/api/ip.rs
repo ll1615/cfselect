@@ -41,7 +41,7 @@ async fn _select(ip_ranges: Vec<String>) -> anyhow::Result<()> {
     fs::write("ip.txt", ip_ranges.join("\n")).await?;
 
     let mut cmd = Command::new("CloudflareSpeedTest");
-    let output = cmd.arg("-sl").arg("5").output().await?;
+    let output = cmd.output().await?;
 
     if !output.status.success() {
         let err_msg = String::from_utf8_lossy(&output.stderr);
