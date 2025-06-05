@@ -31,6 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
         for (let record of obj?.data) {
             let row = document.createElement("tr");
             row.appendChild(cell_cbx.cloneNode(true));
+
+            record?.splice(1, 2) // 跳过列：已发送、已接收
             for (let field of record) {
                 let cell = document.createElement("td");
                 cell.innerText = field;
@@ -42,12 +44,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     $alert_msg = document.querySelector("#alert_msg");
-    $alert_msg_span = $alert_msg.querySelector("span");
     const display_message = async function(obj) {
         if (obj?.code == 0) {
             $alert_msg.classList.remove("invisible", "alert-error");
             $alert_msg.classList.add("visible", "alert-success");
-            $alert_msg_span.innerText = "请求成功！！";
+            $alert_msg.innerText = "请求成功！！";
 
             hide_message(3000);
             return;
@@ -55,12 +56,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         $alert_msg.classList.remove("invisible", "alert-success");
         $alert_msg.classList.add("visible", "alert-error");
-        $alert_msg_span.innerText = obj?.message || "Unknown error";
+        $alert_msg.innerText = obj?.message || "Unknown error";
         hide_message(3000);
     }
 
     // 加载状态
-    $loading_status = document.querySelector("#loading_status");
+    const $loading_status = document.querySelector("#loading_status");
+    const show_loading_status = () => $loading_status.classList.replace("invisible", "visible");
+    const hide_loading_status = () => $loading_status.classList.replace("visible", "invisible");
 
     document.querySelector("#btn_select").addEventListener("click", async (evt) => {
         if (checking_status) {
@@ -79,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
         display_message(obj);
 
         if (obj?.code == 0) {
-            $loading_status.classList.replace("invisible", "visible");
             check_status();
         }
     });
@@ -90,13 +92,16 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        show_loading_status();
+
         checking_status = true;
         for (let i = 0; i < 1000; i++) {
             let response = await fetch("/api/ip/select/status");
             let obj = await response.json();
             if (!obj || obj.code != 0) {
                 display_message(obj);
-                $loading_status.classList.replace("visible", "invisible");
+
+                hide_loading_status();
                 checking_status = false;
                 return;
             }
@@ -104,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (obj?.data == "Success" || obj?.data == "Pending") {
                 fill_selected_ips();
 
-                $loading_status.classList.replace("visible", "invisible");
+                hide_loading_status();
                 checking_status = false;
                 return;
             }
@@ -116,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
     // 异步检查状态并调用填充已优选IP表
-    $loading_status.classList.replace("invisible", "visible");
     check_status();
 
     $sync_dns = document.querySelector("#sync_dns");

@@ -7,72 +7,46 @@
     <script src="/assets/tailwindcss.js"></script>
     <link href="/assets/daisyui.css" rel="stylesheet" type="text/css" />
     <script src="/assets/main.js" defer></script>
+    <link href="/assets/main.css" rel="stylesheet" type="text/css" />
   </head>
-  <body class="relative rounded-xl overflow-auto bg-white h-screen">
-    <div>
-      <div class="bg-gray-300 text-center text-blue-600">
-        <h1 class="uppercase py-5 italic">Cloudflare IP Select</h1>
+  <body class="bg-white h-screen">
+    <h1 class="uppercase py-5 italic bg-gray-300 text-center text-red-600">Cloudflare IP Select</h1>
+    <div id="content" class="p-4 bg-white items-center">
+      <div class="flex flex-col items-center p-4 w-full">
+        <p class="m-5 font-bold text-red-500">待筛选IP段</p>
+        <textarea id="ip_ranges" class="bg-white border border-black" rows="10"></textarea>
       </div>
-    </div>
-    <div class="flex flex-row p-4 bg-white items-center h-5/6">
-      <div class="basis-2/5">
-        <div class="flex flex-col h-full w-full items-center">
-          <p class="mb-5 font-bold text-red-500">待筛选IP段</p>
-          <textarea id="ip_ranges" class="w-2/3 h-1/2 bg-white border border-black" rows="10"></textarea>
+      <div id="actions" class="justify-center">
+        <p id="alert_msg" class="text-center alert alert-soft alert-error invisible">...</p>
+        <button id="btn_select" class="block w-40 h-14 rounded-lg text-center bg-sky-500 shadow-lg">优选 ➔</button>
+        <div id="loading_status" class="flex justify-center invisible"><span class="loading loading-bars loading-xl"></span></div>
+        <div class="w-40 h-14 rounded-lg flex items-center justify-center bg-green-400 shadow-lg">
+          <button id="sync_dns" class="w-full h-full">同步到DNS</button>
+          <label class="w-auto pr-3 hover:cursor-pointer" for="sync_dns">
+            <svg aria-labelledby="cloudUploadIconTitle" color="#000000" fill="none" height="40px" role="img" stroke="#000000" stroke-linecap="square" stroke-linejoin="miter" stroke-width="1" viewBox="0 0 24 24" width="40px" xmlns="http://www.w3.org/2000/svg">
+              <title id="cloudUploadIconTitle">同步</title>
+              <path d="M6.5,18 C4.01471863,18 2,15.9852814 2,13.5 C2,11.0147186 4.01471863,9 6.5,9 C6.9194849,9 7.3255638,9.05739789 7.71081142,9.16476838 C8.72277,7.28089089 10.711801,6 13,6 C15.9817502,6 18.4554927,8.17503894 18.9211951,11.0250841 C20.6555928,11.2331085 22,12.7095527 22,14.5 C22,16.4329966 20.4329966,18 18.5,18 L6.5,18 Z" />
+              <path d="M12,11 L12,15" />
+              <polyline points="10 12 12 10 14 12 14 12" />
+            </svg>
+          </label>
         </div>
       </div>
-      <div class="basis-1/5 flex justify-center">
-        <div class="items-center flex-col space-y-5">
-          <div class="flex justify-center">
-            <div id="alert_msg" role="alert" class="alert alert-soft alert-error invisible">
-              <span></span>
-            </div>
-          </div>
-
-          <div class="flex justify-center">
-            <div id="btn_select" class="w-40 h-14 rounded-lg flex items-center bg-sky-500 shadow-lg">
-              <button class="w-full h-full">优选 ➔</button>
-            </div>
-          </div>
-
-          <div id="loading_status" class="flex justify-center invisible"><span class="loading loading-bars loading-xl"></span></div>
-
-          <div class="flex justify-center">
-            <div class="w-40 h-14 rounded-lg flex items-center justify-center bg-green-400 shadow-lg">
-              <button id="sync_dns" class="w-full h-full">同步到DNS</button>
-              <label class="w-auto pr-3 hover:cursor-pointer" for="sync_dns">
-                <svg aria-labelledby="cloudUploadIconTitle" color="#000000" fill="none" height="40px" role="img" stroke="#000000" stroke-linecap="square" stroke-linejoin="miter" stroke-width="1" viewBox="0 0 24 24" width="40px" xmlns="http://www.w3.org/2000/svg">
-                  <title id="cloudUploadIconTitle">同步</title>
-                  <path d="M6.5,18 C4.01471863,18 2,15.9852814 2,13.5 C2,11.0147186 4.01471863,9 6.5,9 C6.9194849,9 7.3255638,9.05739789 7.71081142,9.16476838 C8.72277,7.28089089 10.711801,6 13,6 C15.9817502,6 18.4554927,8.17503894 18.9211951,11.0250841 C20.6555928,11.2331085 22,12.7095527 22,14.5 C22,16.4329966 20.4329966,18 18.5,18 L6.5,18 Z" />
-                  <path d="M12,11 L12,15" />
-                  <polyline points="10 12 12 10 14 12 14 12" />
-                </svg>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="basis-2/5">
-        <div class="flex flex-col h-full w-full items-center">
-          <p class="mb-5 font-bold text-green-500">已优选IP（前10）</p>
-          <!-- <textarea class="w-2/3 h-1/2 bg-white border border-black" rows="10"></textarea> -->
-          <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-            <table id="selected_ips" class="table">
-              <!-- head -->
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>IP 地址</th>
-                  <th>已发送</th>
-                  <th>已接收</th>
-                  <th>丢包率</th>
-                  <th>平均延迟</th>
-                  <th>下载速度 (MB/s)</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
+      <div class="flex flex-col items-center p-4">
+        <p class="m-5 font-bold text-green-500">已优选IP（前10）</p>
+        <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+          <table id="selected_ips" class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>IP</th>
+                <th>丢包率</th>
+                <th>延迟</th>
+                <th>下载速度(MB/s)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
     </div>

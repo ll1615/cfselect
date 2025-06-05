@@ -1,0 +1,28 @@
+html {
+    min-width: 500px;
+}
+
+#content {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 3fr 2fr 4fr;
+    min-height: 660px;
+}
+
+#actions>* {
+    min-width: 160px;
+    width: fit-content;
+    margin: 10px auto;
+}
+
+#ip_ranges {
+    width: calc(12rem + 6vw)
+}
+
+@media (max-width: 1000px) {
+    #content {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+}
