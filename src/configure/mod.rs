@@ -1,3 +1,11 @@
+//! 应用程序配置模块
+//!
+//! 提供配置文件的读取、解析和初始化功能
+//! 包含以下子模块:
+//! - listen: 监听配置
+//! - log: 日志配置 
+//! - namesilo: Namesilo API配置
+
 use crate::configure::listen::ListenConfig;
 use crate::configure::log::LogConfig;
 use anyhow::{Context, Ok};
@@ -13,15 +21,23 @@ pub mod listen;
 pub mod log;
 pub mod namesilo;
 
+/// 应用程序配置结构体
 #[derive(Debug, Deserialize, Clone)]
 pub struct AppConfig {
+    /// 监听配置
     pub listen: ListenConfig,
+    /// 日志配置
     pub log: LogConfig,
+    /// Namesilo API配置
     pub namesilo: NamesiloConfig,
 }
 
 impl AppConfig {
-    // 读取并解析配置文件
+    /// 读取并解析配置文件
+    ///
+    /// # 返回值
+    /// - 成功: 返回解析后的AppConfig
+    /// - 失败: 返回错误信息
     pub fn read() -> anyhow::Result<AppConfig> {
         let conf = config::Config::builder()
             .add_source(config::File::with_name("config.toml"))
@@ -34,6 +50,11 @@ impl AppConfig {
         conf.try_deserialize().context("解析配置文件失败")
     }
 
+    /// 初始化日志追踪系统
+    ///
+    /// # 返回值
+    /// - 成功: 返回日志守卫(WorkerGuard)列表
+    /// - 失败: 返回错误信息
     pub fn init_tracing(&self) -> anyhow::Result<Vec<WorkerGuard>> {
         let level_file: Level = self.log.file.level.parse()?;
         let level_console: Level = self.log.console.level.parse()?;

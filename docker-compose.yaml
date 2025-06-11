@@ -1,0 +1,12 @@
+services:
+  cfselect:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cfselect:latest
+    container_name: cfselect
+    restart: unless-stopped
+    ports:
+      - 8989:8989
+    env_file:
+      - ./secrets.env
